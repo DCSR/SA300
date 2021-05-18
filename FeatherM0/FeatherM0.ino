@@ -211,9 +211,12 @@ void Box::startBlock() {
         _maxTrialNumber = 999;   
       }  
   }
-  if (_protocolNum != 7) {                                // If not Flush
-    if (_startOnLeverOne) startTrial();
-    else startHDTrial();    
+  if (_protocolNum == 7) {    // If Flush
+     _boxState = L1_TIMEOUT; 
+  }
+  else                        // Anything but Flush
+      if (_startOnLeverOne) startTrial();
+      else startHDTrial();    
   }
 }
 
@@ -600,8 +603,9 @@ void Box::tick() {                        // do stuff every 10 mSec
        if (_pumpTime >= _pumpDuration) switchTimedPump(Off);
     }  
     if (_boxState == L1_TIMEOUT) {
-       _timeOutTime++;
-       if (_timeOutTime == _timeOutDuration) endTimeOut();     
+      if (_protocolNum != 7) {     // Not Flush
+         _timeOutTime++;
+         if (_timeOutTime == _timeOutDuration) endTimeOut();     
     }
     _tickCounts++; 
     if (_tickCounts == 100)    {         // do this every second
@@ -1130,7 +1134,7 @@ void handleInputString()
      else if (stringCode == "D")     reportDiagnostics(); 
      else if (stringCode == "Abort") abortSession();
      else if (stringCode == "r")     resetChips();
-     // else if (stringCode == "A")     Serial.println("10 A "+String(millis())+" 0 0");  // On connect
+     else if (stringCode == "A")     Serial.println("10 A "+String(millis())+" 0 0");  // On connect
      else if (stringCode == "SYSVARS")  decodeSysVars(num1);
      else if (stringCode == "O"){
           if (checkOutputPorts()) handleOutputError();
