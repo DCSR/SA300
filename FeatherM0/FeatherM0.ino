@@ -214,10 +214,10 @@ void Box::startBlock() {
   if (_protocolNum == 7) {    // If Flush
      _boxState = L1_TIMEOUT; 
   }
-  else                        // Anything but Flush
+  else {                       // Anything but Flush
       if (_startOnLeverOne) startTrial();
-      else startHDTrial();    
-  }
+      else startHDTrial(); 
+  }   
 }
 
 void Box::endBlock() {  
@@ -226,7 +226,7 @@ void Box::endBlock() {
    if (_protocolNum == 7) {             // Flush
       switchTimedPump(On);
    }   
-   else if (_blockNumber == _maxBlockNumber) endSession();
+   if (_blockNumber == _maxBlockNumber) endSession();
    else {
      if (_IBIDuration > 0) startIBI();
      else startBlock();
@@ -587,7 +587,9 @@ void Box::endSession() {
     // endTrial(); the only thing this did was retract the lever, but see next line. 
     moveLeverOne(Retract);         
     switchStim1(Off);
-    switchTimedPump(Off);
+    if (_protocolNum != 7) {
+      switchTimedPump(Off);  // Let last flush end through tick()
+    }
     _pumpTime = 0;
     _timeOutTime = 0;
     _boxState = FINISHED;    
@@ -606,6 +608,7 @@ void Box::tick() {                        // do stuff every 10 mSec
       if (_protocolNum != 7) {     // Not Flush
          _timeOutTime++;
          if (_timeOutTime == _timeOutDuration) endTimeOut();     
+      }
     }
     _tickCounts++; 
     if (_tickCounts == 100)    {         // do this every second
