@@ -35,10 +35,12 @@ def main(argv=None):
 class GuiClass(object):
     def __init__(self):
 
-        self.version = "SA301.01"
+        self.version = "SA301.02"
         self.varCode = 0
         self.verbose = True
-        self.sched = ['0: Do not run', '1: FR(N)', '2: FR1 x 20 trials', '3: FR1 x N trials', '4: PR(step N)', '5: TH', '6: IntA: 5-25', '7: Flush', '8: L2-HD', '9: IntA-HD', '10: 2L-PR-HD']
+        # self.sched = ['0: Do not run', '1: FR(N)', '2: FR1 x 20 trials', '3: FR1 x N trials', '4: PR(step N)', '5: TH', '6: IntA: 5-25', '7: Flush', '8: L2-HD', '9: IntA-HD', '10: 2L-PR-HD']
+        # HD protocols #8-10 deprecated May 24th, 2021
+        self.sched = ['0: Do not run', '1: FR(N)', '2: FR1 x 20 trials', '3: FR1 x N trials', '4: PR(step N)', '5: TH', '6: IntA: 5-25', '7: Flush']
         self.box1 = Box(1)
         self.box2 = Box(2)
         self.box3 = Box(3)
@@ -1759,7 +1761,7 @@ class GuiClass(object):
                     self.boolVarLists[listIndex][index].set(level)           # update checkbox                   
                 if (strCode == "L"):
                     self.L1ResponsesList[listIndex].set(self.L1ResponsesList[listIndex].get()+1)    # update L1 label
-                elif (strCode == "H"):
+                elif (strCode == "J"):
                     self.L2ResponsesList[listIndex].set(self.L2ResponsesList[listIndex].get()+1)    # update HD label
                 elif (strCode == "P"):
                     self.InfList[listIndex].set(self.InfList[listIndex].get()+1)                # update infusion label

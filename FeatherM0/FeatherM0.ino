@@ -1,19 +1,6 @@
 /*    
  *     
- * May 22.     
- * 
- *    test checkIntactiveLever() in tick()
- * 
- *    checkLever2
- *      HD
- *      Inactive
- *      
- *    
- *    Done:
- *    checkLeverTwoBits() copied in and renamed checkInactiveLever()
- *     
- *     
- *     
+ * May 24th.    
  *     
  * This should handle eight boxes with or without an inactive lever.
  * 
@@ -37,7 +24,7 @@
 #include <SPI.h>        // Arduino Library SPI.h
 #include "MCP23S17.h"   
 
-String verStr = "Ver301.01";
+String verStr = "Ver301.02";
 const uint8_t chipSelect = 10;  // All four chips use the same SPI chipSelect
 MCP23S17 chip0(chipSelect, 0);  // Instantiate 16 pin Port Expander chip at address 0
 MCP23S17 chip1(chipSelect, 1);  
@@ -665,7 +652,7 @@ void Box::handle_L1_Response() {
 }
 
 void Box::handle_L2_Response() {   // Inactive lever press
-  TStamp tStamp = {_boxNum, 'J', millis() - lever1._startTime, 0, 9};
+  TStamp tStamp = {_boxNum, 'J', millis() - _startTime, 0, 9};
   printQueue.push(&tStamp);
 }
 
@@ -1267,10 +1254,7 @@ void tick()    {
      if (checkLever1) checkLeverOneBits();
      if (checkLever2) checkInactiveLever();
      
-     // checkLeverTwoBits(), which is used for HD stuff, 
-     // is not invoked here. 
-
-    //   
+     // checkLeverTwoBits() is used for HD stuff, currently not used.
      
      pumpState = (pumpStateL1 | pumpStateL2);  // bitwise OR
      chip1.writePort(1,pumpState);
