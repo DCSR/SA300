@@ -1,4 +1,20 @@
 /*    
+ *     
+ * May 22.     
+ * 
+ *    test checkIntactiveLever() in tick()
+ * 
+ *    checkLever2
+ *      HD
+ *      Inactive
+ *      
+ *    
+ *    Done:
+ *    checkLeverTwoBits() copied in and renamed checkInactiveLever()
+ *     
+ *     
+ *     
+ *     
  * This should handle eight boxes with or without an inactive lever.
  * 
  * Two MCP23S17 port expanders are controlLed by the MCP23S17 library 
@@ -107,7 +123,8 @@ class Box  {
     void endSession();
     void tick();
     void handle_L1_Response();
-    void handle_L2_Response(byte state);
+    void handle_L2_Response();
+    void handle_HD_Response(byte state);
     void setProtocolNum(int protocalNum);
     void deliverFoodPellet();                   // stub
     void switchTimedPump(int state); 
@@ -647,7 +664,12 @@ void Box::handle_L1_Response() {
     }  
 }
 
-void Box::handle_L2_Response(byte state) {
+void Box::handle_L2_Response() {   // Inactive lever press
+  TStamp tStamp = {_boxNum, 'J', millis() - lever1._startTime, 0, 9};
+  printQueue.push(&tStamp);
+}
+
+void Box::handle_HD_Response(byte state) {
    /* Handles timestamp only, 
       HD control of pump and LED handled in checkLeverOneBits()
     */
@@ -731,8 +753,10 @@ Box box7(7);
 Box boxArray[8] = {box0, box1, box2, box3, box4, box5, box6, box7}; 
 
 // *************************** Timer stuff **********************************
-// Note that SysTick is a good alternative and has been tested with the M4
-// **************************************************************************
+// This timer has worked well on the Feather M0 but cannot be ported to the M4
+// SysTick is a good option and has been tested with the M4
+
+
 void init_10_mSec_Timer() { 
   REG_GCLK_GENDIV = GCLK_GENDIV_DIV(3) |          // Divide the 48MHz clock source by divisor 3: 48MHz/3=16MHz
                     GCLK_GENDIV_ID(4);            // Select Generic Clock (GCLK) 4
@@ -979,7 +1003,12 @@ void handleInputError(byte leverNum, byte portValue) {
 
 
 void checkLeverOneBits() {
-/*
+/* 
+ *  checkLeverOneBits() is called every 10 mSec in tick().
+ *  The procedure 
+ *  
+ *  
+ *  
  * boxArray[i].handle_L1_Response() is called when the lever goes to ground.
  */
   
@@ -1014,10 +1043,10 @@ void checkLeverTwoBits() {
          for (int bits = 7; bits > -1; bits--) {
             if ((portTwoValue & (1 << bits)) != (oldPortTwoValue & (1 << bits))) {
                if (bitRead(portTwoValue,bits) == 1) {
-                  boxArray[bits].handle_L2_Response(1);
+                  boxArray[bits].handle_HD_Response(1);
                }
                else {
-                  boxArray[bits].handle_L2_Response(0);
+                  boxArray[bits].handle_HD_Response(0);
                }                                  
             }        
          }
@@ -1030,7 +1059,27 @@ void checkLeverTwoBits() {
       pumpState = (pumpStateL1 | pumpStateL2);  // bitwise OR
       // chip1.writePort(1,pumpState);          // Called as next instruction in tick()
    }
-}   
+} 
+
+
+void checkInactiveLever() {
+    static byte oldPortTwoValue = 255;      
+    portTwoValue = chip3.readPort(0);
+    if(portTwoValue != oldPortTwoValue) {
+        oldPortTwoValue = portTwoValue;
+         // Serial.println (portTwoValue,BIN);
+         for (byte i = 0; i < 8; i++) {
+             newLeverTwoState[i] = bitRead(portTwoValue,i);
+             if (newLeverTwoState[i] != lastLeverTwoState[i]) {          
+                  lastLeverTwoState[i] = newLeverTwoState[i]; 
+                  if (newLeverTwoState[i] == 0) {
+                      boxArray[i].handle_L2_Response();
+                  }
+             }
+         }    
+    } 
+}
+
  
 void decodeSysVars(byte varCode) {
      /* Test of decoding
@@ -1216,7 +1265,12 @@ void tick()    {
    if (!sessionAborted) {
      for (uint8_t i = 0; i < 8; i++) boxArray[i].tick();
      if (checkLever1) checkLeverOneBits();
-     if (checkLever2) checkLeverTwoBits(); 
+     if (checkLever2) checkInactiveLever();
+     
+     // checkLeverTwoBits(), which is used for HD stuff, 
+     // is not invoked here. 
+
+    //   
      
      pumpState = (pumpStateL1 | pumpStateL2);  // bitwise OR
      chip1.writePort(1,pumpState);
