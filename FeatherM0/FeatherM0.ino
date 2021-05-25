@@ -24,7 +24,7 @@
 #include <SPI.h>        // Arduino Library SPI.h
 #include "MCP23S17.h"   
 
-String verStr = "Ver301.02";
+String verStr = "Ver300.03";
 const uint8_t chipSelect = 10;  // All four chips use the same SPI chipSelect
 MCP23S17 chip0(chipSelect, 0);  // Instantiate 16 pin Port Expander chip at address 0
 MCP23S17 chip1(chipSelect, 1);  

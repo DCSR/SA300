@@ -35,7 +35,7 @@ def main(argv=None):
 class GuiClass(object):
     def __init__(self):
 
-        self.version = "SA301.02"
+        self.version = "SA300.03"
         self.varCode = 0
         self.verbose = True
         # self.sched = ['0: Do not run', '1: FR(N)', '2: FR1 x 20 trials', '3: FR1 x N trials', '4: PR(step N)', '5: TH', '6: IntA: 5-25', '7: Flush', '8: L2-HD', '9: IntA-HD', '10: 2L-PR-HD']
@@ -869,7 +869,7 @@ class GuiClass(object):
         B3_SchedComboBox = ttk.Combobox(INI_Frame, textvariable=self.B3_sched, width = 15, \
                 values = self.sched).grid(column=4, row=2)
         B3_SessionLength = Spinbox(INI_Frame, textvariable = self.B3_SessionLength, width = 3, \
-                values = [30, 60, 90, 120, 180, 240, 300, 360]).grid(column=5, row=2)
+                values = [2, 5, 30, 60, 90, 120, 180, 240, 300, 360]).grid(column=5, row=2)
         B3_IBILength = Spinbox(INI_Frame, textvariable = self.B3_IBILength, width = 3, \
                 values = [0, 5, 10, 15, 20, 25, 30]).grid(column=6, row=2)
         B3_PumpTime = Spinbox(INI_Frame, textvariable = str(self.B3_PumpTime), width = 3, from_=300, to=600).grid(column=7,row=2)
@@ -884,7 +884,7 @@ class GuiClass(object):
         B4_SchedComboBox = ttk.Combobox(INI_Frame, textvariable=self.B4_sched, width = 15,
                 values = self.sched).grid(column=4, row=3)
         B4_SessionLength = Spinbox(INI_Frame, textvariable = self.B4_SessionLength, width = 3, \
-                values = [30, 60, 90, 120, 180, 240, 300, 360]).grid(column=5, row=3)
+                values = [2, 5, 30, 60, 90, 120, 180, 240, 300, 360]).grid(column=5, row=3)
         B4_IBILength = Spinbox(INI_Frame, textvariable = self.B4_IBILength, width = 3, \
                 values = [0, 5, 10, 15, 20, 25, 30]).grid(column=6, row=3)
         B4_PumpTime = Spinbox(INI_Frame, textvariable = str(self.B4_PumpTime), width = 3, from_=300, to=600).grid(column=7,row=3)
@@ -899,7 +899,7 @@ class GuiClass(object):
         B5_SchedComboBox = ttk.Combobox(INI_Frame, textvariable=self.B5_sched, width = 15, \
                 values = self.sched).grid(column=4, row=4)
         B5_SessionLength = Spinbox(INI_Frame, textvariable = self.B5_SessionLength, width = 3, \
-                values = [30, 60, 90, 120, 180, 240, 300, 360]).grid(column=5, row=4)
+                values = [2, 5, 30, 60, 90, 120, 180, 240, 300, 360]).grid(column=5, row=4)
         B5_IBILength = Spinbox(INI_Frame, textvariable = self.B5_IBILength, width = 3, \
                 values = [0, 5, 10, 15, 20, 25, 30]).grid(column=6, row=4)
         B5_PumpTime = Spinbox(INI_Frame, textvariable = str(self.B5_PumpTime), width = 3, from_=300, to=600).grid(column=7,row=4)
@@ -914,7 +914,7 @@ class GuiClass(object):
         B6_SchedComboBox = ttk.Combobox(INI_Frame, textvariable=self.B6_sched, width = 15, \
                 values = self.sched).grid(column=4, row=5)
         B6_SessionLength = Spinbox(INI_Frame, textvariable = self.B6_SessionLength, width = 3, \
-                values = [30, 60, 90, 120, 180, 240, 300, 360]).grid(column=5, row=5)
+                values = [2, 5, 30, 60, 90, 120, 180, 240, 300, 360]).grid(column=5, row=5)
         B6_IBILength = Spinbox(INI_Frame, textvariable = self.B6_IBILength, width = 3, \
                 values = [0, 5, 10, 15, 20, 25, 30]).grid(column=6, row=5)
         B6_PumpTime = Spinbox(INI_Frame, textvariable = str(self.B6_PumpTime), width = 3, from_=300, to=600).grid(column=7,row=5)
@@ -929,7 +929,7 @@ class GuiClass(object):
         B7_SchedComboBox = ttk.Combobox(INI_Frame, textvariable=self.B7_sched, width = 15, \
                 values = self.sched).grid(column=4, row=6)
         B7_SessionLength = Spinbox(INI_Frame, textvariable = self.B7_SessionLength, width = 3, \
-                values = [30, 60, 90, 120, 180, 240, 300, 360]).grid(column=5, row=6)
+                values = [2, 5, 30, 60, 90, 120, 180, 240, 300, 360]).grid(column=5, row=6)
         B7_IBILength = Spinbox(INI_Frame, textvariable = self.B7_IBILength, width = 3, \
                 values = [0, 5, 10, 15, 20, 25, 30]).grid(column=6, row=6)
         B7_PumpTime = Spinbox(INI_Frame, textvariable = str(self.B7_PumpTime), width = 3, from_=300, to=600).grid(column=7,row=6)
@@ -944,7 +944,7 @@ class GuiClass(object):
         B8_SchedComboBox = ttk.Combobox(INI_Frame, textvariable=self.B8_sched, width = 15, \
                 values = self.sched).grid(column=4, row=7)
         B8_SessionLength = Spinbox(INI_Frame, textvariable = self.B8_SessionLength, width = 3, \
-                values = [30, 60, 90, 120, 180, 240, 300, 360]).grid(column=5, row=7)
+                values = [2, 5, 30, 60, 90, 120, 180, 240, 300, 360]).grid(column=5, row=7)
         B8_IBILength = Spinbox(INI_Frame, textvariable = self.B8_IBILength, width = 3, \
                 values = [0, 5, 10, 15, 20, 25, 30]).grid(column=6, row=7)
         B8_PumpTime = Spinbox(INI_Frame, textvariable = str(self.B8_PumpTime), width = 3, from_=300, to=600).grid(column=7,row=7)
