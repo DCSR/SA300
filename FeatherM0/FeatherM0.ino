@@ -1,7 +1,6 @@
-/*    
- *     
- * May 24th.    
- *     
+/*       
+ * May 25th.
+ *
  * This should handle eight boxes with or without an inactive lever.
  * 
  * Two MCP23S17 port expanders are controlLed by the MCP23S17 library 
@@ -22,14 +21,14 @@
 
 #include <cppQueue.h>
 #include <SPI.h>        // Arduino Library SPI.h
-#include "MCP23S17.h"   
+#include "MCP23S17.h"
 
-String verStr = "Ver300.03";
+String verStr = "Ver300.04";
 const uint8_t chipSelect = 10;  // All four chips use the same SPI chipSelect
 MCP23S17 chip0(chipSelect, 0);  // Instantiate 16 pin Port Expander chip at address 0
-MCP23S17 chip1(chipSelect, 1);  
-MCP23S17 chip2(chipSelect, 2);    
-MCP23S17 chip3(chipSelect, 3); 
+MCP23S17 chip1(chipSelect, 1);
+MCP23S17 chip2(chipSelect, 2);
+MCP23S17 chip3(chipSelect, 3);
 
 // SYSVARS
 boolean checkLever1 = true;
@@ -85,7 +84,6 @@ boolean newResponse[8] = {false,false,false,false,false,false,false,false};
 byte ticks[8] = {0,0,0,0,0,0,0,0};
 boolean lastLeverTwoState[8] = {HIGH,HIGH,HIGH,HIGH,HIGH,HIGH,HIGH,HIGH};
 boolean newLeverTwoState[8] = {HIGH,HIGH,HIGH,HIGH,HIGH,HIGH,HIGH,HIGH};
-boolean leverTwoExists = false;
 
 volatile boolean tickFlag = false;
 
@@ -146,6 +144,7 @@ class Box  {
     int _pumpOnTicker = 0;
     int _pumpOffTicker = 0; 
     int _tickCounts = 0;
+    boolean _useLeverTwo = false;
     void startBlock();
     void endBlock();
     void startTrial();
@@ -221,7 +220,7 @@ void Box::startBlock() {
   else {                       // Anything but Flush
       if (_startOnLeverOne) startTrial();
       else startHDTrial(); 
-  }   
+  }
 }
 
 void Box::endBlock() {  
@@ -454,6 +453,7 @@ void Box::startSession() {
         _responseCriterion = _paramNum;
         _PRstepNum = 1;                 // irrelevant
         _timeOutDuration = _pumpDuration;
+        _useLeverTwo = true;
       }
       else if (_protocolNum == 2) {      // FR1 x 20
         _startOnLeverOne = true;
@@ -466,6 +466,7 @@ void Box::startSession() {
         _responseCriterion = 1;
         _PRstepNum = 1;                 // irrelevant
         _timeOutDuration = 2000;         // 10 mSec x 2000 = 20 sec
+        _useLeverTwo = true;
       }
       else if (_protocolNum == 3) {      // FR x N
         _startOnLeverOne = true;
@@ -478,6 +479,7 @@ void Box::startSession() {
         _responseCriterion = 1;
         _PRstepNum = 1;                 // irrelevant
         _timeOutDuration = _pumpDuration;
+        _useLeverTwo = true;
       }
       else if (_protocolNum == 4) {      // PR(N)
         _startOnLeverOne = true;
@@ -490,6 +492,7 @@ void Box::startSession() {
         // _responseCriterion  set in startTrial()
         _PRstepNum  = _paramNum;
         _timeOutDuration = _pumpDuration;
+        _useLeverTwo = true;
       }   
       else if (_protocolNum == 5) {      // TH
         _startOnLeverOne = true;
@@ -502,7 +505,8 @@ void Box::startSession() {
         _maxTrialNumber = 4;             // Max injections in trial one
         _responseCriterion = 1;
         _PRstepNum = 1;                  // irrelevant
-        _timeOutDuration = _pumpDuration;     
+        _timeOutDuration = _pumpDuration; 
+        _useLeverTwo = true;    
       }
       else if (_protocolNum == 6) {      // IntA 5-25 6h
         _startOnLeverOne = true;
@@ -514,7 +518,8 @@ void Box::startSession() {
         _maxTrialNumber = 999;
         _responseCriterion = 1;
         _PRstepNum = 1;                 // irrelevant
-        _timeOutDuration = _pumpDuration; 
+        _timeOutDuration = _pumpDuration;
+        _useLeverTwo = true; 
       }
       else if (_protocolNum == 7) {     // Flush
         _startOnLeverOne = true;        // irrelevant
@@ -528,6 +533,7 @@ void Box::startSession() {
         _PRstepNum = 1;                 // irrelevant
         _timeOutDuration = _pumpDuration; 
       }
+      /*
       else if (_protocolNum == 8) {          // L2 HD  - one HD session
         _startOnLeverOne = false;            // Start on HD Lever
         _HD_Duration = 0;                    // _HD_Duration only used in 2L-PR-HD
@@ -569,7 +575,8 @@ void Box::startSession() {
         _responseCriterion = 1;         
         _PRstepNum = 1;                 
         _timeOutDuration = _pumpDuration; // irrelevant
-      }   
+      } 
+      */  
   if (_protocolNum == 0) endSession();
   else {
       _startTime = millis();
@@ -583,6 +590,7 @@ void Box::startSession() {
       TStamp tStamp3 = {_boxNum, 'G', millis() - _startTime, 0, 9};  // Added to datafile
       printQueue.push(&tStamp3);
       startBlock(); 
+      if (_useLeverTwo == true) moveLeverTwo(Extend);
   }
   bitSet(boxesRunning,_boxNum);
 }
@@ -808,7 +816,7 @@ void resetChips() {
    chip2.writePort(0,L2_Position);
    chip2.writePort(1,L2_LED_State);
    checkLever1 = true;
-   checkLever2 = true; 
+   checkLever2 = true;
    TStamp tStamp = {10, '&', millis(), 0, 0};        // Added to sessionLog
    printQueue.push(&tStamp);
 }
@@ -1069,9 +1077,9 @@ void checkInactiveLever() {
 
  
 void decodeSysVars(byte varCode) {
-     /* Test of decoding
-    * Uses "left shift" of 1 to generate a mask
-    * Could have used 1,2,4,8 etc
+    /* Test of decoding
+     * Uses "left shift" of 1 to generate a mask
+     * Could have used 1,2,4,8 etc
     */
    if ((varCode & (1 << 0)) > 0) {checkLever1 = true;
       if (showDebugOutput) Serial.println("9 checkLever1=true");
