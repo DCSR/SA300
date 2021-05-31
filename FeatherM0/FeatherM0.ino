@@ -1,5 +1,5 @@
 /*       
- * May 25th.
+ * May 30th.
  *
  * This should handle eight boxes with or without an inactive lever.
  * 
@@ -531,7 +531,8 @@ void Box::startSession() {
         _maxTrialNumber = 999;
         _responseCriterion = 999;       
         _PRstepNum = 1;                 // irrelevant
-        _timeOutDuration = _pumpDuration; 
+        _timeOutDuration = _pumpDuration;
+        _useLeverTwo = false; 
       }
       /*
       else if (_protocolNum == 8) {          // L2 HD  - one HD session
@@ -1266,9 +1267,10 @@ void tick()    {
      
      pumpState = (pumpStateL1 | pumpStateL2);  // bitwise OR
      chip1.writePort(1,pumpState);
-  
-     L2_LED_State = portTwoValue;
-     chip2.writePort(1,L2_LED_State);
+
+     // The following was used in HD to sync the LED with the input port state
+     // L2_LED_State = portTwoValue;
+     // chip2.writePort(1,L2_LED_State);
    }
    
    getInputString();
